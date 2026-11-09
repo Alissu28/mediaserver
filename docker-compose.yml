@@ -1,0 +1,78 @@
+# Servidor de mídia caseiro (Windows + Docker Desktop)
+# Baseado em github.com/patrickdeangelis/mediaserver-setup:
+#   Jellyfin (biblioteca + player), qBittorrent (downloads) e autoheal (reinicia o que travar).
+#
+# Coloque seus vídeos em:
+#   D:\mediaserver\media\filmes   D:\mediaserver\media\series   D:\mediaserver\media\musica
+#
+# Comandos (no PowerShell, dentro de D:\mediaserver):
+#   docker compose up -d                          liga
+#   docker compose down                           desliga
+#   docker compose pull; docker compose up -d     atualiza
+
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    labels:
+      autoheal: "true"
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: America/Sao_Paulo
+    ports:
+      - 8096:8096         # interface web e apps
+      - 7359:7359/udp     # descoberta automática pelos apps do Jellyfin na rede
+    volumes:
+      - jellyfin-config:/config   # banco de dados fica num volume do Docker (mais rápido e estável que no NTFS)
+      - ./media:/data/media       # seus vídeos em D:\mediaserver\media
+    healthcheck:
+      test: curl -fsS -o /dev/null http://localhost:8096/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # Cliente BitTorrent (para conteúdo liberado: domínio público, Creative Commons, Linux).
+  # Baixa em downloads\incompletos e, ao terminar, move para media\<categoria>, onde o Jellyfin pega sozinho.
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    labels:
+      autoheal: "true"
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: America/Sao_Paulo
+      WEBUI_PORT: 8085
+      TORRENTING_PORT: 6881
+    ports:
+      - 8085:8085         # interface web
+      - 6881:6881         # conexões BitTorrent
+      - 6881:6881/udp
+    volumes:
+      - ./config/qbittorrent:/config
+      - ./media:/data/media
+      - ./downloads:/data/downloads
+    healthcheck:
+      test: curl -s -o /dev/null http://localhost:8085   # só confere se a interface responde (ela exige login)
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: autoheal
+    restart: unless-stopped
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: autoheal
+      AUTOHEAL_INTERVAL: 30
+      AUTOHEAL_START_PERIOD: 120
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  jellyfin-config:

@@ -1,0 +1,5 @@
+{
+    "filmes": { "save_path": "/data/media/filmes" },
+    "series": { "save_path": "/data/media/series" },
+    "musica": { "save_path": "/data/media/musica" }
+}

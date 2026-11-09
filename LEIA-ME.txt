@@ -1,0 +1,28 @@
+SERVIDOR DE FILMES (Jellyfin)
+=============================
+
+Abrir:   http://localhost:8096         (neste PC)
+         http://<IP do PC>:8096        (TV, celular e outros aparelhos da casa; veja o IP com "ipconfig")
+
+Seus vídeos:
+  D:\mediaserver\media\filmes    ex.: "Nome do Filme (2010)\Nome do Filme (2010).mkv"
+  D:\mediaserver\media\series    ex.: "Nome da Série\Season 01\Nome da Série S01E01.mkv"
+  D:\mediaserver\media\musica
+Filme novo aparece em até 15 minutos. Pra ver na hora: Painel > Bibliotecas > Escanear todas as bibliotecas.
+Legenda com o mesmo nome do vídeo é usada automaticamente: "Nome do Filme (2010).pt-BR.srt"
+
+Downloads (qBittorrent, só conteúdo liberado: domínio público, Creative Commons, Linux):
+  http://localhost:8085   adicione o .torrent/magnet e escolha a categoria filmes, series ou musica.
+  Baixa em D:\mediaserver\downloads\incompletos e, ao terminar, move pra pasta da categoria.
+  Primeiro acesso: usuário admin, senha temporária em "docker logs qbittorrent". Troque em
+  Ferramentas > Opções > Interface Web.
+
+Apps: Jellyfin (Android, iPhone, Android TV, Fire TV, LG, Samsung) ou Swiftfin/Infuse no iPhone.
+
+Comandos (PowerShell, dentro de D:\mediaserver):
+  docker compose up -d                         liga
+  docker compose down                          desliga
+  docker compose pull; docker compose up -d    atualiza
+
+O Docker Desktop religa tudo sozinho quando ele abre
+(Settings > General > "Start Docker Desktop when you sign in").

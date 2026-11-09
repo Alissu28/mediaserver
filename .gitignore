@@ -1,0 +1,12 @@
+# Não publicar a mídia, downloads nem backups
+media/
+downloads/
+*.tgz
+
+# Configuração do qBittorrent: publica só pastas e categorias (o resto tem hash de senha e estado local)
+config/*
+!config/qbittorrent/
+config/qbittorrent/*
+!config/qbittorrent/qBittorrent/
+config/qbittorrent/qBittorrent/*
+!config/qbittorrent/qBittorrent/categories.json
